@@ -1,0 +1,14 @@
+<div>
+  <h2>
+    {{data.title}}
+  </h2>
+  <ul>
+    {% if data.streets|length != 0 %}
+      {% for street in data.streets %}
+        <li> <b>{{ street.time }}</b> {{ street.name }}: {{ street.numbers }} </li>
+      {% endfor %}
+    {% else %}
+        <p><b>Нема планираних искључења струје за дате улице</b></p>
+    {% endif %}
+  </ul>
+</div>
