@@ -1,0 +1,12 @@
+<div>
+  <h2>
+    {{data.date}} у општини {{data.municipality}}
+  </h2>
+  <ul>
+    {% if data.streets %}
+        <li> <b>{{ data.time }}</b> {{ data.streets }}  </li>
+    {% else %}
+        <p><b>Нема планираних искључења струје за дате улице</b></p>
+    {% endif %}
+  </ul>
+</div>

@@ -105,3 +105,17 @@ venv.bak/
 
 # PyCharm stuff
 .idea/
+
+# VS code
+.vscode/
+
+*configuration.py
+src/secrets
+
+src/token.pickle
+
+src/test
+
+mysql/
+
+docker/
