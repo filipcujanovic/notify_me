@@ -6,7 +6,6 @@ import json
 
 def handle_message_from_queue(ch, method, properties, body):
     body = json.loads(body)
-    print(body)
     notification = Notification('email', 'bus', body['bus_id'], body['user_id'])
     notification.send_email()
     ch.basic_ack(delivery_tag = method.delivery_tag)
