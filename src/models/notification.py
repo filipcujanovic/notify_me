@@ -4,7 +4,7 @@ import base64
 import jinja2
 from src.models import loader
 from .models import Bus, BusRoute, User
-import sendgrid 
+from .sendgrid import send_email as SendEmail
 class Notification:
     def __init__(self, notification_channel, notification_type, model_id, user_id):
         self.notification_channel = notification_channel
@@ -42,10 +42,10 @@ class Notification:
         self.create_email(data)
         
         self.message['subject'] = self.email_title
-        self.message['from'] = 'me'
+        self.message['from'] = os.environ.get('SENDGRID_FROM_EMAIL')
         self.message['to'] = self.receiver_email
         self.message['content'] = ''.join(self.email_template)
 
-        sendgrid.send_email(self.message)
+        SendEmail(self.message)
 
         print('Email sent - ' + self.receiver_email)
