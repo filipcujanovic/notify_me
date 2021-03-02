@@ -3,12 +3,8 @@ import sys
 import base64
 import jinja2
 from src.models import loader
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from .models import Bus, BusRoute, User
-from .gmail import Gmail
-from googleapiclient.discovery import build
-
+from .sendgrid import send_email as SendEmail
 class Notification:
     def __init__(self, notification_channel, notification_type, model_id, user_id):
         self.notification_channel = notification_channel
@@ -20,9 +16,7 @@ class Notification:
         self.html = []
         self.email_template = []
 
-        self.message = MIMEMultipart('alternative')
-        self.creds = Gmail.get_gmail_creds()
-        self.service = build('gmail', 'v1', credentials=Gmail.get_gmail_creds())
+        self.message = {}
 
     def create_email(self, data = None):
         if self.notification_channel == 'email':
@@ -46,13 +40,12 @@ class Notification:
 
     def send_email(self, data = None):
         self.create_email(data)
-        html_text = ''.join(self.email_template)
-        self.message['Subject'] = self.email_title
-        self.message['From'] = 'me'
-        self.message['To'] = self.receiver_email
-        self.message.attach(MIMEText(html_text, 'html'))
-        raw = base64.urlsafe_b64encode(self.message.as_bytes())
-        raw = raw.decode()
-        body = {'raw': raw}
-        self.service.users().messages().send(userId='me', body=body).execute()
+        
+        self.message['subject'] = self.email_title
+        self.message['from'] = os.environ.get('SENDGRID_FROM_EMAIL')
+        self.message['to'] = self.receiver_email
+        self.message['content'] = ''.join(self.email_template)
+
+        SendEmail(**self.message)
+
         print('Email sent - ' + self.receiver_email)
