@@ -46,6 +46,6 @@ class Notification:
         self.message['to'] = self.receiver_email
         self.message['content'] = ''.join(self.email_template)
 
-        SendEmail(self.message)
+        SendEmail(**self.message)
 
         print('Email sent - ' + self.receiver_email)
