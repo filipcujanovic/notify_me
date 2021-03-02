@@ -80,6 +80,7 @@ class Parser:
         real_title = title[0] + 'е' + title[1]
         self.data_for_queue = {real_title: []}
         date = all_trs[0].find_all('td')[0].get_text()
+        date = date.split(' - ')[1]
         all_trs = all_trs[2:]
         for tr in all_trs:
             single_row_data = tr.find_all('td')
