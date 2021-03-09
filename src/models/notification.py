@@ -5,6 +5,10 @@ import jinja2
 from src.models import loader
 from .models import Bus, BusRoute, User
 from .sendgrid import send_email as SendEmail
+
+DATE = 0
+MUNICIPALITY = 0
+
 class Notification:
     def __init__(self, notification_channel, notification_type, model_id, user_id):
         self.notification_channel = notification_channel
@@ -35,8 +39,14 @@ class Notification:
                 template_loader = jinja2.FileSystemLoader(searchpath='')
                 template_env = jinja2.Environment(loader=template_loader)
                 template_html = template_env.get_template(template)
-                self.email_title = data['date'] + ' у општини ' + data['municipality']
-                self.email_template.append(template_html.render(data=data))
+                date = list(data.keys())[DATE]
+                municipality = list(data[date].keys())[MUNICIPALITY]
+                self.email_title = date + ' у општини ' + municipality
+                template_data = {
+                    'email_title': self.email_title,
+                    'streets': data[date][municipality]
+                }
+                self.email_template.append(template_html.render(data=template_data))
 
     def send_email(self, data = None):
         self.create_email(data)

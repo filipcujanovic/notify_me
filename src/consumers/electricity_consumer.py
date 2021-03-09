@@ -8,16 +8,16 @@ from src.models.models import Municipality
 from src.models.models import UserMunicipality
 import json
 
+MUNICIPALITY = 0
 
 def handle_message_from_queue(ch, method, properties, body):
     body = json.loads(body)
-    for municipality in body:
+    for date in body:
+        municipality = list(body[date].keys())[MUNICIPALITY]
         municipality_id = Municipality.where('name', '=', municipality).first().id
         for user in UserMunicipality.where('municipality_id' , '=', municipality_id).get():
             notification = Notification('email', 'electricity', municipality_id, user.user_id)
-            data = body[municipality]
-            data['municipality'] = municipality
-            notification.send_email(data)
+            notification.send_email(body)
             ch.basic_ack(delivery_tag = method.delivery_tag)
 
 rabbitmq = RabbitMq('electricity_queue')

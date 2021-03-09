@@ -77,25 +77,27 @@ class Parser:
         self.streets = []
         all_trs = self.data.find_all('tr')
         title = all_trs[0].td.get_text().split(':')
-        real_title = title[0] + 'е' + title[1]
-        self.data_for_queue = {real_title: []}
         date = all_trs[0].find_all('td')[0].get_text()
         date = date.split(' - ')[1]
+        self.data_for_queue = {date: {}}
         all_trs = all_trs[2:]
         for tr in all_trs:
             single_row_data = tr.find_all('td')
             municipality_name = single_row_data[MUNICIPALITY_NAME].get_text()
             streets = single_row_data[STREETS].get_text()
             time = single_row_data[TIME].get_text()
-            single_day_data = {}
-            single_day_data[municipality_name] = {'streets': streets, 'time': time, 'date': date}
-            self.data_for_queue[real_title].append(single_day_data)
+            single_day_data = []
+            if (municipality_name in self.data_for_queue[date]):
+                self.data_for_queue[date][municipality_name].append({'streets': streets, 'time': time})
+            else:
+                single_day_data.append({'streets': streets, 'time': time})
+                self.data_for_queue[date][municipality_name] = single_day_data
         self.send_data_to_queue()
 
     def send_data_to_queue(self):
         for day, municipalities in self.data_for_queue.items():
-            for municipality in municipalities:
-                self.rabbitmq.send_message_to_queue(municipality)
+            for municipality, data in municipalities.items():
+                self.rabbitmq.send_message_to_queue({day: {municipality: data}})
 
     def get_data_for_bus(self, url):
         self.make_request(url)
